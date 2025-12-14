@@ -1,0 +1,28 @@
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ===== Virtualenv =====
+.venv/
+venv/
+env/
+
+# ===== Flask =====
+instance/
+*.log
+
+# ===== PyCharm / JetBrains =====
+.idea/
+
+# ===== macOS =====
+.DS_Store
+
+# ===== Env variables =====
+.env
+
+# ===== Test/Tool caches (optional but nice) =====
+.pytest_cache/
+.mypy_cache/
+.coverage
