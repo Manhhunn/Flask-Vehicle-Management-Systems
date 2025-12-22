@@ -1,0 +1,69 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Chi Tiết Phiếu Sửa Chữa</h4>
+            <button type="button" class="btn btn-light btn-sm" onclick="addRow()">
+                <i class="fas fa-plus"></i> Thêm dòng
+            </button>
+        </div>
+
+        <div class="card-body p-0">
+            <form method="POST" id="repairForm" onsubmit="prepareData(event)" data-tax-rate="{{ tax }}">
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped mb-0 align-middle" id="repairTable">
+
+                        <thead class="table-dark text-center text-nowrap">
+                            <tr>
+                                <th style="width: 40px;">STT</th>
+
+                                <th style="min-width: 150px;">Tên Hạng Mục</th>
+
+                                <th style="min-width: 180px;">Loại Linh Kiện</th>
+                                <th style="width: 110px;">Đơn Giá</th>
+
+                                <th style="min-width: 160px;">Loại Tiền Công</th>
+                                <th style="width: 110px;">Số Tiền Công</th>
+
+                                <th style="width: 85px;">SL</th> <th style="width: 130px;">Thành Tiền</th>
+                                <th style="width: 40px;">Xóa</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tableBody">
+                            </tbody>
+
+                        <tfoot class="fw-bold bg-light">
+                            <tr>
+                                <td colspan="7" class="text-end">Cộng tiền hàng:</td>
+                                <td colspan="2" id="sumTotal" class="text-end pe-3">0</td>
+                            </tr>
+                            <tr>
+                                <td colspan="7" class="text-end">Thuế VAT ({{ tax }}%):</td>
+                                <td colspan="2" id="taxValue" class="text-end pe-3">0</td>
+                            </tr>
+                            <tr class="text-danger h5">
+                                <td colspan="7" class="text-end">TỔNG THANH TOÁN:</td>
+                                <td colspan="2" id="finalTotal" class="text-end pe-3">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <input type="hidden" name="details_data" id="detailsData">
+
+                <div class="p-3 text-end bg-white border-top">
+                    <a href="{{ url_for('tech_reception_list') }}" class="btn btn-secondary me-2">Quay lại</a>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> Lưu Phiếu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/repair_ticket.js') }}"></script>
+{% endblock %}

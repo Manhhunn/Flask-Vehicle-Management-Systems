@@ -1,0 +1,46 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Danh Sách Xe Chưa Thanh Toán</h2>
+
+    <div class="card shadow">
+        <div class="card-body">
+            {% if cars %}
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Mã Xe</th>
+                        <th>Biển Số</th>
+                        <th>Chủ Xe</th>
+                        <th>Tiền Thu</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in cars %}
+                    <tr>
+                        <td class="text-center fw-bold">{{ c.id }}</td>
+
+                        <td><span class="badge bg-info text-dark">{{ c.bien_so }}</span></td>
+                        <td>{{ c.ten_khach_hang }}</td>
+                        <td class="text-danger fw-bold">{{ "{:,.0f}".format(c.tien_no) }} VND</td>
+
+                        <td class="text-center">
+                            <a href="{{ url_for('create_invoice', car_id=c.id) }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-money-bill-wave"></i> Thu Tiền
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <div class="alert alert-success text-center">
+                    <i class="fas fa-check-circle"></i> Không có xe nào đang nợ tiền.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Danh sách xe chờ sửa chữa</h2>
+
+    <div class="card shadow">
+        <div class="card-body">
+            {% if receptions %}
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Mã Phiếu</th>
+                        <th>Biển Số</th>
+                        <th>Chủ Xe</th>
+                        <th>Ngày Tiếp Nhận</th>
+                        <th>Lỗi / Yêu Cầu</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in receptions %}
+                    <tr>
+                        <td class="text-center fw-bold">{{ r.id }}</td>
+
+                        <td><span class="badge bg-warning text-dark">{{ r.xe.bien_so }}</span></td>
+                        <td>{{ r.xe.ten_khach_hang }}</td>
+                        <td>{{ r.ngay_tiep_nhan.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ r.loi_mo_ta }}</td>
+
+                        <td class="text-center">
+                            <a href="{{ url_for('create_repair_ticket', reception_id=r.id) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-tools"></i> Lập Phiếu Sửa
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-check-circle"></i> Hiện tại không có xe nào đang chờ sửa chữa.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

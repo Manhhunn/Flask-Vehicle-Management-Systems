@@ -1,0 +1,174 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center mb-4 text-uppercase fw-bold">Thống Kê Hoạt Động Gara</h2>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fa fa-filter"></i> Bộ Lọc Thống Kê
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row g-3">
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Tiêu chí:</label>
+                            <select id="statType" class="form-control">
+                                <option value="revenue">Doanh Thu (Tiền)</option>
+                                <option value="issues">Vấn đề thường gặp (Sửa chữa)</option>
+                                <option value="cars">Hiệu xe phổ biến / Lượng xe</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Chế độ xem:</label>
+                            <select id="timeMode" class="form-control" onchange="toggleTimeInputs()">
+                                <option value="month">Xem Theo Tháng</option>
+                                <option value="year_range">So Sánh Các Năm</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div id="monthInputArea">
+                                <label class="form-label fw-bold">Chọn Tháng:</label>
+                                <input type="month" id="statMonth" class="form-control">
+                            </div>
+
+                            <div id="yearInputArea" style="display: none;">
+                                <label class="form-label fw-bold">Chọn Khoảng Năm:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Từ</span>
+                                    <input type="number" id="startYear" class="form-control" placeholder="2022" min="2000" max="2100">
+                                    <span class="input-group-text">Đến</span>
+                                    <input type="number" id="endYear" class="form-control" placeholder="2025" min="2000" max="2100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 d-flex flex-column justify-content-end">
+                             <select id="chartType" class="form-control mb-2">
+                                <option value="bar">Cột (Bar)</option>
+                                <option value="line">Đường (Line)</option>
+                                <option value="pie">Tròn (Pie)</option>
+                            </select>
+                            <button onclick="loadChartData()" class="btn btn-success w-100">
+                                <i class="fa fa-chart-bar"></i> Xem
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-body">
+                    <div style="height: 600px; width: 100%;">
+                        <canvas id="myChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let myChartInstance = null;
+
+    // Hàm chuyển đổi giao diện nhập liệu
+    function toggleTimeInputs() {
+        const mode = document.getElementById('timeMode').value;
+        const monthArea = document.getElementById('monthInputArea');
+        const yearArea = document.getElementById('yearInputArea');
+        const chartSelect = document.getElementById('chartType');
+
+        if (mode === 'month') {
+            monthArea.style.display = 'block';
+            yearArea.style.display = 'none';
+        } else {
+            monthArea.style.display = 'none';
+            yearArea.style.display = 'block';
+            // Khi so sánh năm, nên mặc định về biểu đồ Cột hoặc Đường cho dễ nhìn
+            chartSelect.value = 'bar';
+        }
+    }
+
+    async function loadChartData() {
+        const statType = document.getElementById('statType').value;
+        const timeMode = document.getElementById('timeMode').value;
+        const chartType = document.getElementById('chartType').value;
+
+        let url = `/admin/get-stats?type=${statType}&time_mode=${timeMode}`;
+
+        // Ghép tham số URL tùy theo chế độ
+        if (timeMode === 'month') {
+            const month = document.getElementById('statMonth').value;
+            if (!month) { alert("Vui lòng chọn tháng!"); return; }
+            url += `&month=${month}`;
+        } else {
+            const start = document.getElementById('startYear').value;
+            const end = document.getElementById('endYear').value;
+            if (!start || !end) { alert("Vui lòng nhập đủ năm bắt đầu và kết thúc!"); return; }
+            url += `&start_year=${start}&end_year=${end}`;
+        }
+
+        try {
+            const response = await fetch(url);
+            const result = await response.json();
+
+            if (result.error) {
+                alert(result.error);
+                return;
+            }
+
+            renderChart(result.labels, result.data, result.title, chartType);
+
+        } catch (error) {
+            console.error("Lỗi:", error);
+            alert("Lỗi tải dữ liệu!");
+        }
+    }
+
+    function renderChart(labels, data, title, chartType) {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        if (myChartInstance) myChartInstance.destroy();
+
+        const bgColors = data.map(() => `rgba(${Math.floor(Math.random()*200)}, ${Math.floor(Math.random()*200)}, 250, 0.7)`);
+
+        myChartInstance = new Chart(ctx, {
+            type: chartType,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: title,
+                    data: data,
+                    backgroundColor: chartType === 'line' ? 'rgba(54, 162, 235, 0.2)' : bgColors,
+                    borderColor: 'blue',
+                    borderWidth: 1,
+                    fill: chartType === 'line'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set mặc định
+        const now = new Date();
+        document.getElementById('statMonth').value = now.toISOString().slice(0, 7);
+        document.getElementById('startYear').value = now.getFullYear() - 3; // Mặc định lùi 3 năm
+        document.getElementById('endYear').value = now.getFullYear();
+
+        toggleTimeInputs();
+        loadChartData();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <div class="card shadow-lg border-0 rounded-3">
+
+                <div class="card-header bg-success text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i> PHIẾU THANH TOÁN</h4>
+                            <p class="mb-0 mt-1 opacity-75">Gara Ô Tô - Uy Tín & Chất Lượng</p>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-0">#{{ ticket.id if ticket else '---' }}</h5>
+                            <small>{{ now.strftime('%d/%m/%Y') if now else '' }}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded border h-100">
+                                <h6 class="text-muted text-uppercase fw-bold mb-2">Khách hàng</h6>
+                                <p class="mb-1 fw-bold fs-5">{{ car.ten_khach_hang }}</p>
+                                <p class="mb-0">Biển số: <span class="badge bg-warning text-dark fs-6">{{ car.bien_so }}</span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-center align-items-end">
+                                <h6 class="text-muted text-uppercase fw-bold mb-1">Nhân viên phụ trách</h6>
+                                <p class="mb-0 fw-bold fs-5 text-primary">
+                                    <i class="fas fa-user-tie me-1"></i> {{ current_user.ho_ten }}
+                                </p>
+                                <small class="text-muted">{{ current_user.user_role }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="hiddenInvoiceId" value="{{ ticket.id }}">
+
+                    {% if ticket and ticket.chi_tiet %}
+                    <h6 class="text-muted text-uppercase fw-bold mb-3">Chi tiết hạng mục</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-dark text-center text-nowrap">
+                                <tr>
+                                    <th style="width: 50px;">STT</th>
+                                    <th>Hạng Mục / Nội Dung</th>
+                                    <th style="width: 140px;">Đơn giá LK</th>
+                                    <th style="width: 140px;">Đơn giá TC</th>
+                                    <th style="width: 80px;">SL</th>
+                                    <th style="width: 150px;">Thành Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ticket.chi_tiet %}
+                                <tr>
+                                    <td class="text-center">{{ loop.index }}</td>
+                                    <td>
+                                        <span class="fw-bold">{{ item.hang_muc_sua_chua }}</span>
+                                        {% if item.linh_kien %}
+                                            <br><small class="text-muted fst-italic">- LK: {{ item.linh_kien.ten_linh_kien }}</small>
+                                        {% endif %}
+                                        {% if item.tien_cong %}
+                                            <br><small class="text-muted fst-italic">- TC: {{ item.tien_cong.noi_dung }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end text-muted">
+                                        {{ "{:,.0f}".format(item.don_gia_luu_tru) if item.don_gia_luu_tru > 0 else '-' }}
+                                    </td>
+                                    <td class="text-end text-muted">
+                                        {{ "{:,.0f}".format(item.tien_cong_luu_tru) if item.tien_cong_luu_tru > 0 else '-' }}
+                                    </td>
+                                    <td class="text-center">{{ item.so_luong }}</td>
+                                    <td class="text-end fw-bold text-primary">
+                                        {{ "{:,.0f}".format(item.thanh_tien) }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="bg-light fw-bold">
+                                <tr>
+                                    <td colspan="5" class="text-end">Cộng tiền hàng (Trước thuế):</td>
+                                    <td class="text-end">
+                                        {{ "{:,.0f}".format(ticket.tong_thanh_tien / 1.1) if ticket.tong_thanh_tien else 0 }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" class="text-end">Thuế VAT (10%):</td>
+                                    <td class="text-end">
+                                        {{ "{:,.0f}".format(ticket.tong_thanh_tien - (ticket.tong_thanh_tien / 1.1)) if ticket.tong_thanh_tien else 0 }}
+                                    </td>
+                                </tr>
+                                <tr class="text-danger h5">
+                                    <td colspan="5" class="text-end">TỔNG THANH TOÁN:</td>
+                                    <td class="text-end">{{ "{:,.0f}".format(ticket.tong_thanh_tien) }} VND</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle"></i> Không tìm thấy chi tiết phiếu sửa chữa.
+                        </div>
+                    {% endif %}
+
+                    <hr class="my-4">
+
+                    <form method="POST" id="paymentForm">
+
+                        <input type="hidden" name="amount_paid" value="{{ car.tien_no | int }}">
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold mb-3">Hình thức thanh toán:</label>
+                                <div class="d-grid gap-3">
+                                    <label class="btn btn-outline-success p-3 text-start border-2 active-method" id="lblCash">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="payment_method" value="tien_mat" checked
+                                                   class="form-check-input me-3" style="transform: scale(1.3);">
+                                            <div>
+                                                <h6 class="mb-0 fw-bold"><i class="fas fa-money-bill-wave me-2"></i> Tiền mặt</h6>
+                                                <small class="text-muted">Thanh toán trực tiếp tại quầy</small>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label class="btn btn-outline-primary p-3 text-start border-2" id="lblQR">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="payment_method" value="chuyen_khoan"
+                                                   class="form-check-input me-3" style="transform: scale(1.3);">
+                                            <div>
+                                                <h6 class="mb-0 fw-bold"><i class="fas fa-qrcode me-2"></i> VNPAY / QR Code</h6>
+                                                <small class="text-muted">Ví điện tử, Mobile Banking</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 d-flex flex-column justify-content-center align-items-center bg-light rounded border p-4">
+
+                                <div id="actionCash" class="text-center w-100">
+                                    <i class="fas fa-hand-holding-usd fa-3x text-success mb-3"></i>
+                                    <h5 class="mb-3">Xác nhận đã thu đủ tiền?</h5>
+                                    <button type="submit" class="btn btn-success btn-lg w-100 py-3 shadow">
+                                        <i class="fas fa-save me-2"></i> HOÀN TẤT & IN HOÁ ĐƠN
+                                    </button>
+                                </div>
+
+                                <div id="actionQR" class="text-center w-100" style="display: none;">
+                                    <img src="https://vnpay.vn/s1/statics.vnpay.vn/2023/6/0oxhzjmxbksr1686814746087.png" alt="VNPAY" height="50" class="mb-3">
+                                    <h5 class="mb-3">Thanh toán Online an toàn</h5>
+                                    <p class="text-muted small">Hệ thống sẽ tạo mã QR giao dịch tự động.</p>
+
+                                    <button type="button" id="btnPayVNPAY" class="btn btn-primary btn-lg w-100 py-3 shadow">
+                                        <i class="fas fa-qrcode me-2"></i> TẠO MÃ THANH TOÁN
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="text-end mt-4">
+                        <a href="{{ url_for('invoice_list') }}" class="btn btn-secondary">Quay lại danh sách</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/payment.js') }}"></script>
+
+{% endblock %}

@@ -1,8 +1,75 @@
-{% extends 'layout/base.html' %}
-{% block title %}
-    Trang chủ
-{% endblock %}
+{% extends "layout/base.html" %}
+
+{% block title %} Trang chủ - Quản lý Gara {% endblock %}
 
 {% block content %}
+<div class="p-5 mb-4 bg-light rounded-3 mt-5"
+     style="background-image: url('{{ url_for('static', filename='images/home.jpg') }}'); background-size: cover; background-position: center; position: relative;">
 
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); border-radius: 0.3rem;"></div>
+
+    <div class="container-fluid py-5 position-relative text-white mt-5">
+        <h1 class="display-5 fw-bold">Hệ Thống Quản Lý Sửa Chữa Xe</h1>
+        <p class="col-md-8 fs-4">Giải pháp chuyên nghiệp giúp quản lý tiếp nhận xe, sửa chữa, kho linh kiện và báo cáo doanh thu hiệu quả.</p>
+
+        <div class="mt-4">
+            {% if current_user.is_authenticated %}
+                <p class="mb-3">Chào mừng <strong>{{ current_user.ho_ten }}</strong> ({{ current_user.user_role }})!</p>
+
+                {# --- NHÓM 1: QUYỀN KỸ THUẬT (Kỹ thuật viên + Quản lý) --- #}
+                {% if current_user.user_role == 'KyThuatVien' or current_user.user_role == 'QuanLy' or current_user.user_role == 'Admin' %}
+                    <a href="{{ url_for('tech_reception_list') }}" class="btn btn-primary btn-lg me-2 mb-2">
+                        <i class="fas fa-list-alt"></i> Danh sách phiếu tiếp nhận
+                    </a>
+                {% endif %}
+
+                {# --- NHÓM 2: QUYỀN NHÂN VIÊN (Nhân viên + Quản lý) --- #}
+                {% if current_user.user_role == 'NhanVien' or current_user.user_role == 'QuanLy'or current_user.user_role == 'Admin' %}
+                    <a href="{{ url_for('reception') }}" class="btn btn-success btn-lg me-2 mb-2">
+                        <i class="fas fa-car"></i> Tiếp nhận xe
+                    </a>
+
+                    <a href="{{ url_for('invoice_list') }}" class="btn btn-info btn-lg me-2 text-white mb-2">
+                        <i class="fas fa-file-invoice-dollar"></i> Lập hoá đơn
+                    </a>
+
+                    {% if current_user.user_role == 'NhanVien' %}
+                    <a href="{{ url_for('view_list_reception_for_emp') }}" class="btn btn-primary btn-lg me-2 mb-2">
+                        <i class="fas fa-list-alt"></i> Danh sách phiếu tiếp nhận
+                    </a>
+                    {% endif %}
+
+                {% endif %}
+
+                {# --- NHÓM 3: QUYỀN QUẢN TRỊ (Admin + Quản lý) --- #}
+{#                {% if current_user.user_role == 'QuanLy' or current_user.user_role == 'Admin' %}#}
+{#                    <a href="/admin" class="btn btn-warning btn-lg mb-2">#}
+{#                        <i class="fas fa-cogs"></i> Trang Quản Trị#}
+{#                    </a>#}
+{#                {% endif %}#}
+
+            {% else %}
+                {# --- CHƯA ĐĂNG NHẬP --- #}
+                <a href="{{ url_for('login_user_view') }}" class="btn btn-primary btn-lg" type="button">
+                    Đăng nhập để làm việc
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row align-items-md-stretch">
+    <div class="col-md-6">
+      <div class="h-100 p-5 text-white bg-dark rounded-3">
+        <h2>Quy trình chuẩn</h2>
+        <p>Tiếp nhận xe -> Lập phiếu sửa chữa -> Xuất vật tư -> Thanh toán. Mọi thứ đều được quy trình hóa để tránh thất thoát.</p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="h-100 p-5 bg-light border rounded-3">
+        <h2>Báo cáo thông minh</h2>
+        <p>Hệ thống tự động thống kê doanh thu theo tháng, báo cáo tồn kho linh kiện giúp quản lý đưa ra quyết định nhập hàng chính xác.</p>
+      </div>
+    </div>
+</div>
 {% endblock %}

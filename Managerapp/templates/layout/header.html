@@ -1,58 +1,42 @@
-<header>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg bg-body">
-        <div class="container-fluid">
-            <button
-                    data-mdb-collapse-init
-                    class="navbar-toggler"
-                    type="button"
-                    data-mdb-target="#navbarExample01"
-                    aria-controls="navbarExample01"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-            >
-                <i class="fas fa-bars"></i>
-            </button>
-            <a class="navbar-brand mt-2 mt-lg-0" href="#">
-                <img
-                        src="{{ url_for('static', filename='images/logo.jpg') }}"
-                        height="40"
-                        alt="MDB Logo"
-                        loading="lazy"
-                />
-            </a>
-            <div class="collapse navbar-collapse" id="navbarExample01">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item active">
-                        <a class="nav-link" aria-current="page" href="/">Home</a>
-                    </li>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <!-- Navbar -->
+<nav class="navbar bg-body-tertiary shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center">
 
-    <!-- Background image -->
-    <div
-            class="p-5 text-center bg-image"
-            style="
-                    background-image: url('{{ url_for('static', filename='images/home.jpg') }}');
-                    height: 400px;
-                    "
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <img
+                    src="{{ url_for('static',filename='images/logo.jpg') }}"
+                    height="40"
+                    alt="Logo"
+                    loading="lazy"
+            />
+        </a>
 
-    >
-        <div class="mask" style="background-color: rgba(0, 0, 0, 0.6);">
-            <div class="d-flex justify-content-center align-items-center h-100">
-                <div class="text-white">
-                    <h3 class="mb-3">QUẢN LÝ</h3>
-                    <h1 class="mb-3">TRUNG TÂM SỬA XE</h1>
-                    <a data-mdb-ripple-init class="btn btn-outline-light btn-lg" href="#!" role="button"
-                    >LOGIN</a
-                    >
-                </div>
-            </div>
+        <div class="d-flex align-items-center">
+
+            {% if current_user.is_authenticated %}
+
+                <span class="me-3 text-secondary d-none d-md-block">
+                    Xin chào, <strong>{{ current_user.ho_ten }}</strong>
+                    <small class="badge bg-light text-dark border">{{ current_user.user_role }}</small>
+                </span>
+
+                {% if current_user.user_role == 'Admin' or current_user.user_role == 'QuanLy' %}
+                    <a href="/admin" class="btn btn-outline-warning btn-sm me-2" title="Vào trang quản trị">
+                        <i class="fas fa-cogs"></i> <span class="d-none d-sm-inline">Admin</span>
+                    </a>
+                {% endif %}
+
+                <a href="{{ url_for('logout_process') }}" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a>
+
+            {% else %}
+                <a href="{{ url_for('login_user_view') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-user"></i> Đăng nhập
+                </a>
+
+            {% endif %}
+
         </div>
+
     </div>
-    <!-- Background image -->
-</header>
+</nav>

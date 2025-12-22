@@ -1,0 +1,86 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Lập Phiếu Tiếp Nhận</h3>
+        </div>
+        <div class="card-body">
+
+            <form method="GET" action="{{ url_for('reception') }}" class="row mb-4 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Nhập biển số xe cần tìm:</label>
+                    <input type="text" name="bien_so" class="form-control"
+                           value="{{ search_bien_so }}" placeholder="Ví dụ: 29A-12345" required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-info text-white">
+                        <i class="fa fa-search"></i> Kiểm tra xe
+                    </button>
+                    {% if search_bien_so and not car %}
+                        <a href="{{ url_for('add_car_view', bien_so=search_bien_so) }}" class="btn btn-warning">
+                            <i class="fa fa-plus"></i> Thêm xe mới
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+
+            <hr>
+
+            <form method="POST" action="{{ url_for('reception') }}">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nhân viên hỗ trợ:</label>
+                        <input type="text" class="form-control bg-light"
+                               value="{{ current_user.ho_ten }}" readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Ngày tiếp nhận:</label>
+                        <input type="text" class="form-control bg-light"
+                               value="{{ now.strftime('%d/%m/%Y %H:%M') }}" readonly>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Biển số xe:</label>
+                        <input type="text" class="form-control fw-bold"
+                               value="{{ car.bien_so if car else '' }}" readonly>
+
+                        <input type="hidden" name="ma_xe" value="{{ car.id if car else '' }}">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Tên chủ xe:</label>
+                        <input type="text" class="form-control"
+                               value="{{ car.ten_khach_hang if car else '' }}" readonly>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Loại xe:</label>
+                        <input type="text" class="form-control"
+                               value="{{ car.loai_xe if car else '' }}" readonly>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mô tả lỗi / Yêu cầu khách hàng:</label>
+                    <textarea class="form-control" name="loi_mo_ta" rows="3" required placeholder="Nhập tình trạng xe...">{{ request.form.loi_mo_ta }}</textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    {% if car %}
+                        <button type="submit" class="btn btn-success btn-lg">Lưu Phiếu Tiếp Nhận</button>
+                    {% else %}
+                        <button type="button" class="btn btn-secondary btn-lg" disabled>Vui lòng tìm xe trước</button>
+                    {% endif %}
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

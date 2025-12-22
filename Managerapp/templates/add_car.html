@@ -1,0 +1,46 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">Thêm Xe Mới Vào Hệ Thống</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('add_car_view') }}">
+
+                        <div class="mb-3">
+                            <label class="form-label">Biển số xe (*)</label>
+                            <input type="text" name="bien_so" class="form-control form-control-lg"
+                                   value="{{ prefill_bien_so }}" required placeholder="Ví dụ: 30A-56789">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tên chủ xe (*)</label>
+                            <input type="text" name="ten_khach" class="form-control" required placeholder="Nhập tên khách hàng">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Loại xe (*)</label>
+                            <select class="form-select" name="loai_xe">
+                                <option value="Oto">Ô tô</option>
+                                <option value="XeMay">Xe máy</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('reception', bien_so=prefill_bien_so) }}" class="btn btn-outline-secondary">
+                                Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5">Lưu & Quay lại Lập Phiếu</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
